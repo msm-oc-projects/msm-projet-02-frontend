@@ -1,0 +1,17 @@
+.page {
+  display: grid;
+  gap: 2rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.status {
+  margin: 2rem auto;
+  color: #555;
+  text-align: center;
+}
+
+.error {
+  color: #a11a1a;
+}

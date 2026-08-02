@@ -1,0 +1,10 @@
+<header class="page-header">
+  <h1>{{ title }}</h1>
+
+  <dl class="indicators" *ngIf="indicators.length">
+    <div class="indicator" *ngFor="let indicator of indicators">
+      <dt>{{ indicator.label }}</dt>
+      <dd>{{ indicator.value }}</dd>
+    </div>
+  </dl>
+</header>

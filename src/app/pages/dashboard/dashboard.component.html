@@ -1,0 +1,20 @@
+<main class="page" *ngIf="viewModel$ | async as vm">
+  <app-header
+    title="Medals per Country"
+    [indicators]="vm.indicators"
+  ></app-header>
+
+  <p class="status" *ngIf="vm.status === 'loading'" role="status">
+    Loading Olympic data…
+  </p>
+  <p class="status" *ngIf="vm.status === 'empty'">{{ vm.message }}</p>
+  <p class="status error" *ngIf="vm.status === 'error'" role="alert">
+    {{ vm.message }}
+  </p>
+
+  <app-medals-chart
+    *ngIf="vm.status === 'success'"
+    [olympics]="vm.olympics"
+    (countrySelected)="openCountry($event)"
+  ></app-medals-chart>
+</main>

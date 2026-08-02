@@ -1,0 +1,13 @@
+<div class="chart-wrapper">
+  <canvas #chartCanvas aria-label="Medals per country" role="img"></canvas>
+</div>
+
+<nav class="country-links" aria-label="Country details">
+  <button
+    type="button"
+    *ngFor="let olympic of olympics"
+    (click)="selectCountry(olympic.id)"
+  >
+    {{ olympic.country }}
+  </button>
+</nav>

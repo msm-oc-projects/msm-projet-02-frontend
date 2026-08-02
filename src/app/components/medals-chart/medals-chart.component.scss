@@ -1,0 +1,29 @@
+.chart-wrapper {
+  position: relative;
+  width: min(100%, 52rem);
+  height: clamp(20rem, 55vw, 34rem);
+  margin: 0 auto;
+}
+
+.country-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+button {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #0b868f;
+  border-radius: 1rem;
+  color: #075f66;
+  background: #fff;
+  cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+  color: #fff;
+  background: #0b868f;
+}

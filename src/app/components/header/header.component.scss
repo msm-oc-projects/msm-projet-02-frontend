@@ -1,0 +1,42 @@
+.page-header {
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
+}
+
+h1 {
+  margin: 0;
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.65rem;
+  color: #fff;
+  background: #0b868f;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  text-align: center;
+}
+
+.indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+}
+
+.indicator {
+  min-width: 9rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #0b868f;
+  border-radius: 0.65rem;
+  text-align: center;
+}
+
+dt {
+  color: #626262;
+}
+
+dd {
+  margin: 0.25rem 0 0;
+  color: #111;
+  font-size: 1.15rem;
+  font-weight: 700;
+}

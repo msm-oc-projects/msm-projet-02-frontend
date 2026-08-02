@@ -1,0 +1,22 @@
+<main class="page" *ngIf="viewModel$ | async as vm">
+  <ng-container *ngIf="vm.status === 'success' && vm.olympic; else status">
+    <app-header
+      [title]="vm.olympic.country"
+      [indicators]="vm.indicators"
+    ></app-header>
+    <app-medal-evolution-chart
+      [participations]="vm.olympic.participations"
+    ></app-medal-evolution-chart>
+  </ng-container>
+
+  <ng-template #status>
+    <p *ngIf="vm.status === 'loading'" class="status" role="status">
+      Loading country data…
+    </p>
+    <p *ngIf="vm.status === 'error'" class="status error" role="alert">
+      {{ vm.message }}
+    </p>
+  </ng-template>
+
+  <a class="back-link" routerLink="/">Go back</a>
+</main>
