@@ -14,6 +14,15 @@ import {
 import Chart from 'chart.js/auto';
 import { Olympic } from '../../models/olympic.model';
 
+const CHART_COLORS = [
+  '#0b868f',
+  '#adc3de',
+  '#7a3c53',
+  '#8f6263',
+  '#e28f33',
+  '#94819d',
+] as const;
+
 @Component({
   selector: 'app-medals-chart',
   templateUrl: './medals-chart.component.html',
@@ -68,14 +77,7 @@ export class MedalsChartComponent
                 0,
               ),
             ),
-            backgroundColor: [
-              '#0b868f',
-              '#adc3de',
-              '#7a3c53',
-              '#8f6263',
-              '#e28f33',
-              '#94819d',
-            ],
+            backgroundColor: CHART_COLORS,
             hoverOffset: 4,
           },
         ],
@@ -91,7 +93,15 @@ export class MedalsChartComponent
           }
         },
         plugins: {
-          legend: { position: 'bottom' },
+          legend: {
+            labels: { color: '#202020', padding: 16 },
+            position: 'bottom',
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.label}: ${context.parsed} medals`,
+            },
+          },
         },
       },
     });

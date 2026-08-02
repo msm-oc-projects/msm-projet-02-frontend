@@ -1,9 +1,35 @@
 .page {
   display: grid;
-  gap: 2rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
   max-width: 68rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem 2rem;
+}
+
+app-header,
+.introduction,
+.status,
+app-medals-chart {
+  grid-column: 1 / -1;
+}
+
+.introduction {
+  max-width: 44rem;
+  margin: 0 auto;
+  color: #4f4f4f;
+  text-align: center;
+}
+
+.introduction h2 {
+  margin: 0 0 0.5rem;
+  color: #202020;
+  font-size: 1.25rem;
+}
+
+.introduction p {
+  margin: 0;
+  line-height: 1.6;
 }
 
 .status {
@@ -14,4 +40,26 @@
 
 .error {
   color: #a11a1a;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 75rem) {
+  .page {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .introduction {
+    grid-column: 3 / 11;
+  }
+
+  app-medals-chart {
+    grid-column: 2 / 12;
+  }
 }

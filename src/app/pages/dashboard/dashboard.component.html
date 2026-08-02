@@ -4,6 +4,14 @@
     [indicators]="vm.indicators"
   ></app-header>
 
+  <section class="introduction" aria-labelledby="dashboard-introduction">
+    <h2 id="dashboard-introduction">Olympic Games</h2>
+    <p>
+      Explore the Olympic medal totals for each country. Select a country in
+      the chart to discover its results through the different editions.
+    </p>
+  </section>
+
   <p class="status" *ngIf="vm.status === 'loading'" role="status">
     Loading Olympic data…
   </p>

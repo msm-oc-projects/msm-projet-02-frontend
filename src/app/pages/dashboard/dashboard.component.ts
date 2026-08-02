@@ -55,8 +55,8 @@ export class DashboardComponent {
       status: 'success',
       olympics,
       indicators: [
-        { label: 'Number of countries', value: olympics.length },
         { label: 'Number of JOs', value: olympicYears.size },
+        { label: 'Number of countries', value: olympics.length },
       ],
     };
   }

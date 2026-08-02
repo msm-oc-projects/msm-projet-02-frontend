@@ -1,8 +1,14 @@
 .chart-wrapper {
   position: relative;
   width: min(100%, 52rem);
-  height: clamp(20rem, 55vw, 34rem);
+  height: clamp(18rem, 60vw, 34rem);
   margin: 0 auto;
+}
+
+.instructions {
+  margin: 0 0 0.5rem;
+  color: #555;
+  text-align: center;
 }
 
 .country-links {
@@ -26,4 +32,17 @@ button:hover,
 button:focus-visible {
   color: #fff;
   background: #0b868f;
+  outline: 3px solid #f0b429;
+  outline-offset: 2px;
+}
+
+@media (max-width: 47.9375rem) {
+  .chart-wrapper {
+    height: 22rem;
+  }
+
+  .country-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
