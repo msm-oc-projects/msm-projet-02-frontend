@@ -1,5 +1,13 @@
 <main class="not-found">
-  <h1>Page not found</h1>
-  <p>No corresponding page was found.</p>
-  <a routerLink="/">Go back to the dashboard</a>
+  <section class="error-card" aria-labelledby="error-title">
+    <p class="error-code" aria-hidden="true">404</p>
+    <h1 id="error-title">Page not found</h1>
+    <p>
+      The requested page or country does not exist. Check the address or return
+      to the dashboard.
+    </p>
+    <a routerLink="/" aria-label="Go back to the dashboard">
+      Go back to the dashboard
+    </a>
+  </section>
 </main>

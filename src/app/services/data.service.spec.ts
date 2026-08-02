@@ -51,4 +51,19 @@ describe('DataService', () => {
 
     httpController.expectOne(environment.olympicsUrl).flush(olympics);
   });
+
+  it('propagates a retrieval error for the page to handle', (done) => {
+    service.getOlympics().subscribe({
+      next: () => fail('The request should fail'),
+      error: (error: { status: number }) => {
+        expect(error.status).toBe(500);
+        done();
+      },
+    });
+
+    httpController.expectOne(environment.olympicsUrl).flush(
+      { message: 'Internal error' },
+      { status: 500, statusText: 'Server Error' },
+    );
+  });
 });
