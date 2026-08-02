@@ -348,7 +348,352 @@ au lieu de les faire dépendre de chaque développeur.
 | `README.md` complet | non conforme | contenu minimal et architecture inexacte |
 | `ARCHITECTURE.md` présent | non conforme | fichier absent |
 
-## Conclusion personnelle
+## 10. Architecture cible proposée
+
+### 10.1 Principes directeurs
+
+L'architecture doit rester proportionnée aux deux pages du projet tout en
+préparant le remplacement du JSON par une API REST. Elle suivra cinq règles :
+
+1. les pages orchestrent un cas d'usage et ne chargent jamais directement les
+   données ;
+2. le service constitue l'unique point d'accès à la source de données ;
+3. les échanges sont typés de la lecture HTTP jusqu'aux templates ;
+4. les éléments visuels réutilisables ne connaissent ni le routeur ni la source
+   de données ;
+5. les états loading, empty, error et success sont explicites dans chaque page.
+
+> **Commentaire personnel —** Je retiens une architecture simple par catégories
+> plutôt qu'une architecture d'entreprise avec de nombreux modules et couches.
+> Le projet n'a que deux cas d'usage ; la structure doit les clarifier, pas les
+> dissimuler derrière des abstractions prématurées.
+
+### 10.2 Arborescence cible
+
+```text
+src/app/
+├── components/
+│   ├── header/
+│   │   ├── header.component.html
+│   │   ├── header.component.scss
+│   │   ├── header.component.spec.ts
+│   │   └── header.component.ts
+│   ├── medals-chart/
+│   │   ├── medals-chart.component.html
+│   │   ├── medals-chart.component.scss
+│   │   ├── medals-chart.component.spec.ts
+│   │   └── medals-chart.component.ts
+│   └── medal-evolution-chart/
+│       ├── medal-evolution-chart.component.html
+│       ├── medal-evolution-chart.component.scss
+│       ├── medal-evolution-chart.component.spec.ts
+│       └── medal-evolution-chart.component.ts
+├── models/
+│   ├── indicator.model.ts
+│   ├── olympic.model.ts
+│   └── participation.model.ts
+├── pages/
+│   ├── dashboard/
+│   │   ├── dashboard.component.html
+│   │   ├── dashboard.component.scss
+│   │   ├── dashboard.component.spec.ts
+│   │   └── dashboard.component.ts
+│   ├── country-detail/
+│   │   ├── country-detail.component.html
+│   │   ├── country-detail.component.scss
+│   │   ├── country-detail.component.spec.ts
+│   │   └── country-detail.component.ts
+│   └── not-found/
+│       ├── not-found.component.html
+│       ├── not-found.component.scss
+│       ├── not-found.component.spec.ts
+│       └── not-found.component.ts
+├── services/
+│   ├── data.service.spec.ts
+│   └── data.service.ts
+├── app-routing.module.ts
+├── app.component.html
+├── app.component.scss
+├── app.component.spec.ts
+├── app.component.ts
+└── app.module.ts
+```
+
+Le fichier simulé reste hors du code applicatif :
+
+```text
+src/assets/mock/olympic.json
+```
+
+Cette arborescence ajoute seulement les catégories justifiées par le besoin :
+composants visuels, pages conteneurs, modèles et service de données.
+
+### 10.3 Responsabilité des blocs
+
+| Bloc | Responsabilité | Ne doit pas faire |
+|---|---|---|
+| `pages/dashboard` | orchestrer le chargement de la liste, calculer ou demander les KPI et préparer les données du graphique | appeler `HttpClient` ou manipuler directement le canvas |
+| `pages/country-detail` | lire `:id`, demander le pays, gérer les états et préparer les KPI | connaître l'URL du JSON ou accepter silencieusement un ID absent |
+| `components/header` | afficher un titre et une liste typée d'indicateurs | charger les données ou naviguer |
+| `components/medals-chart` | afficher les totaux et émettre l'identifiant sélectionné | décider de la route ou charger les pays |
+| `components/medal-evolution-chart` | afficher les médailles par année | calculer les totaux métier ou charger le pays |
+| `services/data.service` | charger, mettre en cache et rechercher les données olympiques typées | contenir des règles de présentation |
+| `models` | définir les contrats TypeScript partagés | exécuter des accès HTTP ou dépendre d'Angular |
+
+Les deux composants de graphique sont volontairement spécialisés. Un unique
+composant générique Chart.js demanderait de nombreux paramètres et conditions
+pour seulement deux usages différents ; il serait moins lisible à ce stade.
+
+### 10.4 Modèles prévus
+
+Les contrats principaux reprennent les spécifications :
+
+```ts
+export interface Participation {
+  id: number;
+  year: number;
+  city: string;
+  medalsCount: number;
+  athleteCount: number;
+}
+
+export interface Olympic {
+  id: number;
+  country: string;
+  participations: Participation[];
+}
+```
+
+Le composant d'en-tête reçoit un modèle minimal :
+
+```ts
+export interface Indicator {
+  label: string;
+  value: number;
+}
+```
+
+Les tableaux exposés aux composants pourront être déclarés `readonly` pour
+éviter qu'un composant de présentation modifie les données reçues.
+
+### 10.5 Déplacements virtuels
+
+| Élément actuel | Destination cible | Transformation prévue |
+|---|---|---|
+| `pages/home/*` | `pages/dashboard/*` | renommer selon le vocabulaire du cahier des charges et retirer HTTP/Chart.js |
+| `pages/country/*` | `pages/country-detail/*` | utiliser `:id`, retirer HTTP/Chart.js et gérer les quatre états |
+| `pages/not-found/*` | `pages/not-found/*` | conserver la page, améliorer sémantique et navigation |
+| en-têtes dupliqués dans les templates | `components/header/*` | remplacer par un composant à entrées `title` et `indicators` |
+| graphique circulaire de `HomeComponent` | `components/medals-chart/*` | recevoir des données typées et émettre un ID au clic/clavier |
+| graphique ligne de `CountryComponent` | `components/medal-evolution-chart/*` | recevoir les participations typées et gérer le cycle de vie Chart.js |
+| `HttpClient` et `olympicUrl` des pages | `services/data.service.ts` | centraliser le chargement et le futur endpoint REST |
+| formes implicites et `any` | `models/*.model.ts` | typer réponses, transformations, entrées et sorties |
+| styles `.center` et `.split` | SCSS des composants concernés | supprimer le couplage global aux balises internes |
+| constantes de couleurs répétées | constantes privées des composants de graphique | conserver les choix visuels près de leur seul usage |
+
+Ces déplacements sont uniquement planifiés dans cette étape ; aucun fichier du
+starter n'est encore déplacé.
+
+### 10.6 Patterns retenus
+
+#### Service singleton par injection Angular
+
+`DataService` sera déclaré avec `providedIn: 'root'`. L'injecteur Angular
+fournira une instance partagée à l'application. Cette solution applique le
+besoin du Singleton sans créer manuellement une variable globale ou appeler
+`new DataService()`.
+
+Bénéfices :
+
+- une seule politique d'accès aux données ;
+- possibilité de mettre la réponse en cache ;
+- remplacement centralisé du JSON par une URL d'API ;
+- service facilement substituable dans les tests.
+
+#### Container / Presentational
+
+Les pages jouent le rôle de conteneurs : elles connaissent le routeur, le
+service et les états. `HeaderComponent` et les graphiques sont des composants
+de présentation : ils reçoivent des entrées typées et émettent des événements.
+
+```text
+Page conteneur
+  ├── fournit title + indicators ──> HeaderComponent
+  ├── fournit données graphiques ──> composant de graphique
+  └── traite l'événement selectedId <── composant de graphique
+```
+
+Cette séparation rend les composants visuels réutilisables et testables sans
+HTTP ni navigation réelle.
+
+#### Observer avec RxJS
+
+Le service retourne des `Observable<Olympic[]>` et les pages composent ces flux
+avec le paramètre de route. L'`async` pipe sera privilégié lorsqu'il simplifie
+le template ; toute souscription impérative restante devra avoir une stratégie
+de destruction explicite.
+
+#### Façade d'accès aux données
+
+Sans ajouter une couche `Repository` inutile pour ce petit front, `DataService`
+jouera le rôle de façade entre les pages et la source externe. Les pages ne
+sauront pas si les données viennent d'un asset, d'une API REST ou d'un double
+de test.
+
+#### Injection de dépendances
+
+Les pages reçoivent le service et les objets du routeur par leur constructeur.
+Elles dépendent de contrats fournis par Angular plutôt que de construire leurs
+dépendances, ce qui réduit le couplage.
+
+### 10.7 Flux de données prévu
+
+#### Dashboard
+
+```text
+Router `/`
+  → DashboardPage
+  → DataService.getOlympics()
+  → HttpClient
+  → `assets/mock/olympic.json` puis future API REST
+  → Observable<Olympic[]>
+  → KPI + données du graphique
+  → HeaderComponent + MedalsChartComponent
+  → événement countrySelected(id)
+  → Router `/country/:id`
+```
+
+#### Détail d'un pays
+
+```text
+Router `/country/:id`
+  → CountryDetailPage lit et valide `id`
+  → DataService.getOlympicById(id)
+  → pays trouvé
+      → KPI + MedalEvolutionChartComponent
+  → pays absent ou ID invalide
+      → état error clair ou redirection 404
+```
+
+Le sens des données reste unidirectionnel : la page fournit des entrées aux
+composants, et ceux-ci remontent uniquement des événements métier.
+
+### 10.8 Contrat prévu pour `DataService`
+
+Le service exposera une API réduite et typée :
+
+```ts
+getOlympics(): Observable<Olympic[]>;
+getOlympicById(id: number): Observable<Olympic | undefined>;
+```
+
+Le chargement pourra être partagé afin d'éviter une nouvelle requête à chaque
+consommateur. Les erreurs HTTP resteront observables par les pages, qui pourront
+afficher le message approprié sans journaliser directement dans la console.
+
+Le service ne renverra pas de `any` et ne transformera pas une erreur en tableau
+vide, car cela empêcherait la page de distinguer l'état error de l'état empty.
+
+### 10.9 Préparation de l'intégration d'une API REST
+
+Aujourd'hui :
+
+```text
+DataService → GET assets/mock/olympic.json
+```
+
+Demain :
+
+```text
+DataService → GET {apiUrl}/olympics
+```
+
+L'URL pourra être déplacée dans les fichiers d'environnement. Si la réponse du
+back-end diffère du modèle d'affichage, son adaptation sera réalisée dans le
+service. Les pages et composants conserveront leurs contrats `Olympic`,
+`Participation` et `Indicator`.
+
+Cette frontière prépare aussi l'ajout ultérieur d'intercepteurs HTTP pour les
+erreurs transversales ou l'authentification, sans modifier les composants.
+
+> **Commentaire personnel —** Le critère de réussite de cette architecture est
+> simple : remplacer le JSON par une API doit principalement modifier le
+> service et la configuration, pas les composants d'interface.
+
+### 10.10 Gestion des états
+
+Chaque page conteneur prévoit quatre rendus exclusifs :
+
+| État | Dashboard | Détail |
+|---|---|---|
+| loading | spinner ou squelette avec texte accessible | même principe pendant la recherche du pays |
+| empty | « Aucune donnée » | pays sans participation : message explicite |
+| error | message clair de chargement | identifiant invalide ou pays absent + bouton retour |
+| success | KPI et graphique | KPI, évolution et bouton retour |
+
+Les composants de présentation ne décident pas eux-mêmes de ces états ; la page
+conteneur possède le contexte nécessaire pour choisir le rendu.
+
+### 10.11 Routage cible
+
+```ts
+const routes: Routes = [
+  { path: '', component: DashboardComponent },
+  { path: 'country/:id', component: CountryDetailComponent },
+  { path: 'not-found', component: NotFoundComponent },
+  { path: '**', redirectTo: 'not-found' },
+];
+```
+
+Le détail valide le paramètre avec une conversion numérique stricte. Le clic
+sur le graphique transmet l'`id` de l'objet `Olympic`, jamais son libellé.
+
+### 10.12 Stratégie de tests associée
+
+| Élément | Tests prioritaires |
+|---|---|
+| `DataService` | chargement typé, recherche par ID, absence et erreur HTTP |
+| `DashboardComponent` | loading, empty, error, KPI, navigation après sélection |
+| `CountryDetailComponent` | ID valide/invalide, KPI, pays absent et retour |
+| `HeaderComponent` | titre, nombre et valeurs des indicateurs |
+| composants de graphique | création/destruction, données reçues, événement sélectionné |
+| routage | route par défaut, détail par ID et fallback 404 |
+
+Les tests de calcul utiliseront de petites données déterministes. Chart.js sera
+isolé ou espionné afin que les tests ne dépendent pas d'un vrai canvas.
+
+### 10.13 Choix volontairement écartés
+
+- **NgRx ou store global :** deux pages et une source en lecture seule ne
+  justifient pas cette complexité ;
+- **micro-frontends :** aucun besoin de déploiement indépendant ;
+- **module `SharedModule` générique :** les trois composants peuvent être
+  déclarés directement dans `AppModule` à cette échelle ;
+- **repository et multiples interfaces d'infrastructure :** `DataService`
+  fournit déjà la frontière nécessaire ;
+- **composant de graphique universel :** les deux graphiques n'ont ni les mêmes
+  données ni les mêmes interactions ;
+- **multiplication de dossiers `core`, `shared`, `features` :** elle rendrait
+  l'arborescence plus profonde sans bénéfice immédiat.
+
+Cette simplicité n'empêche pas une évolution future : de nouveaux dossiers par
+fonctionnalité pourront être introduits lorsque le nombre de pages ou d'équipes
+le justifiera réellement.
+
+### 10.14 Décisions récapitulatives
+
+| Décision | Justification |
+|---|---|
+| un seul `DataService` racine | source unique, cache et migration API centralisée |
+| pages conteneurs | orchestration du routeur, des états et des cas d'usage |
+| composants visuels spécialisés | cycle de vie Chart.js et accessibilité isolés |
+| modèles TypeScript partagés | suppression de `any` et contrat stable |
+| route par ID | conformité, stabilité et validation simple |
+| flux RxJS typés | composition et cycle de vie maîtrisés |
+| styles locaux | réduction des effets de bord CSS |
+| pas de store global | complexité non justifiée par le périmètre |
+
+## 11. Conclusion personnelle
 
 Le starter démarre et illustre le parcours principal, mais il ne constitue pas
 encore une base maintenable. La priorité est de définir les modèles, centraliser
