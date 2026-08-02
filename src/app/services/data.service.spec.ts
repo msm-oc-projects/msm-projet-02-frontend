@@ -4,6 +4,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Olympic } from '../models/olympic.model';
 import { DataService } from './data.service';
 
@@ -40,7 +41,7 @@ describe('DataService', () => {
   it('loads the Olympic data', () => {
     service.getOlympics().subscribe((result) => expect(result).toEqual(olympics));
 
-    httpController.expectOne('assets/mock/olympic.json').flush(olympics);
+    httpController.expectOne(environment.olympicsUrl).flush(olympics);
   });
 
   it('finds a country by its identifier', () => {
@@ -48,6 +49,6 @@ describe('DataService', () => {
       .getOlympicById(1)
       .subscribe((result) => expect(result).toEqual(olympics[0]));
 
-    httpController.expectOne('assets/mock/olympic.json').flush(olympics);
+    httpController.expectOne(environment.olympicsUrl).flush(olympics);
   });
 });

@@ -40,7 +40,7 @@ export class DashboardComponent {
     void this.router.navigate(['/country', id]);
   }
 
-  private toViewModel(olympics: Olympic[]): DashboardViewModel {
+  private toViewModel(olympics: readonly Olympic[]): DashboardViewModel {
     if (olympics.length === 0) {
       return this.state('empty', 'No Olympic data is available.');
     }
