@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
+  EMPTY,
   Observable,
   catchError,
   map,
@@ -13,7 +14,7 @@ import { Olympic } from '../../models/olympic.model';
 import { DataService } from '../../services/data.service';
 
 interface CountryViewModel {
-  status: 'loading' | 'error' | 'success';
+  status: 'loading' | 'empty' | 'error' | 'success';
   olympic?: Olympic;
   indicators: readonly Indicator[];
   message?: string;
@@ -27,21 +28,28 @@ interface CountryViewModel {
 })
 export class CountryDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly dataService = inject(DataService);
 
   readonly viewModel$: Observable<CountryViewModel> = this.route.paramMap.pipe(
     map((params) => Number(params.get('id'))),
     switchMap((id) => {
       if (!Number.isInteger(id) || id <= 0) {
-        return of(this.errorState('The country identifier is invalid.'));
+        return this.redirectToNotFound();
       }
 
       return this.dataService.getOlympicById(id).pipe(
-        map((olympic) =>
-          olympic
-            ? this.successState(olympic)
-            : this.errorState('No country matches this identifier.'),
-        ),
+        switchMap((olympic) => {
+          if (!olympic) {
+            return this.redirectToNotFound();
+          }
+
+          return of(
+            olympic.participations.length === 0
+              ? this.emptyState(olympic)
+              : this.successState(olympic),
+          );
+        }),
       );
     }),
     startWith<CountryViewModel>({ status: 'loading', indicators: [] }),
@@ -73,5 +81,19 @@ export class CountryDetailComponent {
 
   private errorState(message: string): CountryViewModel {
     return { status: 'error', indicators: [], message };
+  }
+
+  private emptyState(olympic: Olympic): CountryViewModel {
+    return {
+      status: 'empty',
+      olympic,
+      indicators: [],
+      message: 'No participation data is available for this country.',
+    };
+  }
+
+  private redirectToNotFound(): Observable<never> {
+    void this.router.navigate(['/not-found'], { replaceUrl: true });
+    return EMPTY;
   }
 }

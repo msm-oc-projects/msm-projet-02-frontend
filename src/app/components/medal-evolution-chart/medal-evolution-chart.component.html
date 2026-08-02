@@ -1,3 +1,19 @@
+<p id="evolution-chart-description" class="description">
+  Evolution of the number of medals won at each Olympic edition.
+</p>
+
 <div class="chart-wrapper">
-  <canvas #chartCanvas aria-label="Medal history" role="img"></canvas>
+  <canvas
+    #chartCanvas
+    aria-label="Line chart showing the number of medals won at each Olympic edition"
+    aria-describedby="evolution-chart-description evolution-chart-data"
+    role="img"
+  ></canvas>
 </div>
+
+<dl id="evolution-chart-data" class="visually-hidden">
+  <div *ngFor="let participation of participations">
+    <dt>{{ participation.year }}</dt>
+    <dd>{{ participation.medalsCount }} medals</dd>
+  </div>
+</dl>

@@ -12,6 +12,8 @@ import {
 import Chart from 'chart.js/auto';
 import { Participation } from '../../models/participation.model';
 
+const CHART_COLOR = '#0b868f';
+
 @Component({
   selector: 'app-medal-evolution-chart',
   templateUrl: './medal-evolution-chart.component.html',
@@ -58,8 +60,13 @@ export class MedalEvolutionChartComponent
             data: this.participations.map(
               (participation) => participation.medalsCount,
             ),
-            borderColor: '#0b868f',
-            backgroundColor: '#0b868f',
+            borderColor: CHART_COLOR,
+            backgroundColor: CHART_COLOR,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: CHART_COLOR,
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
             tension: 0.2,
           },
         ],
@@ -69,7 +76,19 @@ export class MedalEvolutionChartComponent
         maintainAspectRatio: false,
         scales: {
           x: { title: { display: true, text: 'Date' } },
-          y: { beginAtZero: true, ticks: { precision: 0 } },
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0 },
+            title: { display: true, text: 'Medals' },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.parsed.y} medals`,
+            },
+          },
         },
       },
     });

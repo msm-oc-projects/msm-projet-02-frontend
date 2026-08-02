@@ -1,22 +1,69 @@
 .page {
   display: grid;
-  gap: 2rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
   max-width: 68rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem 2rem;
+}
+
+app-header,
+app-medal-evolution-chart,
+.status,
+.back-link {
+  grid-column: 1 / -1;
 }
 
 .status,
 .back-link {
-  margin: 2rem auto 0;
+  margin: 1rem auto 0;
   text-align: center;
+}
+
+.status {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: #555;
+  background: #f2f2f2;
 }
 
 .error {
   color: #a11a1a;
+  background: #fff0f0;
 }
 
 .back-link {
+  padding: 0.65rem 1.2rem;
+  border: 2px solid #0b868f;
+  border-radius: 1.5rem;
   color: #075f66;
+  background: #fff;
   font-weight: 700;
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: #fff;
+  background: #0b868f;
+  outline: 3px solid #f0b429;
+  outline-offset: 2px;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 75rem) {
+  .page {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  app-medal-evolution-chart {
+    grid-column: 2 / 12;
+  }
 }

@@ -4,3 +4,26 @@
   height: clamp(18rem, 48vw, 30rem);
   margin: 0 auto;
 }
+
+.description {
+  margin: 0 0 0.5rem;
+  color: #555;
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 47.9375rem) {
+  .chart-wrapper {
+    height: 20rem;
+  }
+}
