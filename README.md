@@ -60,15 +60,35 @@ les commandes npm utilisent la version locale déclarée dans le projet.
 
 ## Installation
 
+Les commandes `git`, `npm` et `npm run` ci-dessous sont valables sous Linux,
+macOS et Windows PowerShell. Sous Windows, utiliser `Set-Location` pour se
+déplacer dans le dossier du projet.
+
+Linux/macOS :
+
 ```bash
 git clone https://github.com/msm-oc-projects/msm-projet-02-frontend.git
 cd msm-projet-02-frontend
 npm ci
 ```
 
+Windows PowerShell :
+
+```powershell
+git clone https://github.com/msm-oc-projects/msm-projet-02-frontend.git
+Set-Location msm-projet-02-frontend
+npm ci
+```
+
 Lancer ensuite le serveur de développement :
 
 ```bash
+npm start
+```
+
+Windows PowerShell :
+
+```powershell
 npm start
 ```
 
@@ -83,6 +103,9 @@ L'application est disponible par défaut sur
 | `npm run build` | génère le bundle de production dans `dist/tele-sport/` |
 | `npm test` | lance Karma en mode interactif |
 | `npm test -- --watch=false --browsers=ChromeHeadless --progress=false` | exécute la suite une fois en mode headless |
+
+Les commandes du tableau sont identiques sous Linux, macOS et Windows
+PowerShell.
 
 ## Routes
 
